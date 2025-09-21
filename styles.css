@@ -1,6 +1,38 @@
-/* БАЗА: читаемость и предсказуемость размеров */
+/* === 1. ДИЗАЙН-ТОКЕНЫ (в :root) === */
+:root {
+    /* Палитра цветов */
+    --color-bg: #ffffff;
+    --color-fg: #0b0b0b;
+    --color-muted: #666666;
+    --color-primary: #0a84ff;
+    --color-danger: #b00020;
+
+    /* Типографика */
+    --font-body: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+
+    /* Отступы (ритм) */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 16px;
+    --space-4: 24px;
+    --space-5: 40px;
+
+    /* Скругления и тени */
+    --radius: 12px;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Тёмная тема */
+body.theme-dark {
+    --color-bg: #0b0b0b;
+    --color-fg: #f5f5f5;
+    --color-muted: #aaaaaa;
+    --color-primary: #6aa2ff;
+}
+
+/* === 2. RESET и БАЗОВЫЕ СТИЛИ === */
 * {
-    box-sizing: border-box;
+    box-sizing: border-box; /* Всегда! */
 }
 
 html, body {
@@ -8,67 +40,356 @@ html, body {
     padding: 0;
 }
 
+html {
+    scroll-behavior: smooth; /* Плавная прокрутка для якорных ссылок */
+    color-scheme: light; /* Светлые скроллбары/контролы по умолчанию */
+}
+
 body {
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-body);
     line-height: 1.5;
 }
 
-/* Формы: размеры, отступы, визуальный порядок */
-label {
-    display: block;
-    margin: 0.5rem 0 0.25rem;
+body.theme-dark {
+    color-scheme: dark; /* Тёмные — при активной теме */
 }
 
-input, select, textarea, button {
-    width: 100%;
-    max-width: 480px;
-    padding: .5rem .75rem;
-    border: 1px solid #c8c8c8;
-    border-radius: 8px;
-    background: #fff;
+/* Контейнер для центрирования контента */
+.container {
+    width: min(100% - 2 * var(--space-4), 1120px);
+    margin-inline: auto; /* Центрирует по горизонтали */
+    padding-inline: var(--space-2); /* Небольшие отступы по бокам на мобильных */
 }
 
-/* Кнопка по умолчанию */
-button, [type="submit"] {
-    background: #0a84ff;
-    color: #fff;
-    border: none;
-    cursor: pointer;
+/* Стили для ссылок (LVHA-порядок) */
+a:link,
+a:visited {
+    color: var(--color-primary);
+    text-decoration: none;
 }
 
-/* Состояния: клавиатура/мышь/ошибки */
-:where(input, select, textarea, button):focus-visible {
-    outline: 2px solid #0a84ff;
+a:hover,
+a:active {
+    text-decoration: underline;
+}
+
+/* Видимый фокус для доступности */
+:where(a, button, input, select, textarea):focus-visible {
+    outline: 2px solid var(--color-primary);
     outline-offset: 2px;
 }
 
-button:hover {
-    filter: brightness(0.95);
-}
-
-:disabled, [aria-disabled="true"] {
-    opacity: .6;
+/* Состояние "недоступно" */
+:disabled,
+[aria-disabled="true"] {
+    opacity: 0.6;
     cursor: not-allowed;
 }
 
-/* Подсветка ошибочных полей */
-[aria-invalid="true"] {
-    border-color: #b00020;
+/* Подсветка целевого элемента (якорь) */
+:target {
+    outline: 2px dashed var(--color-primary);
+    outline-offset: 4px;
 }
 
-/* Стили для модального окна <dialog> */
-dialog {
-    padding: 1.25rem;
-    border: none;
-    border-radius: 12px;
+/* Медиа-элементы не "вылезают" из контейнеров */
+img,
+video,
+iframe {
+    max-width: 100%;
+    height: auto;
+    display: block;
 }
 
-dialog::backdrop {
-    background: rgba(0, 0, 0, .5);
+/* Формы наследуют стили родителя */
+button,
+input,
+select,
+textarea {
+    font: inherit;
+    color: inherit;
 }
 
-.form-actions {
+/* === 3. СТИЛИ ДЛЯ ШАПКИ И НАВИГАЦИИ (БЭМ) === */
+.site-header {
+    background: var(--color-bg);
+    box-shadow: var(--shadow);
+    padding-block: var(--space-3); /* Отступы сверху и снизу */
+}
+
+.site-header .container {
     display: flex;
-    gap: .5rem;
-    margin-top: 1rem;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.site-header__brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: var(--color-fg);
+}
+
+.site-nav__list {
+    list-style: none;
+    display: flex;
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+}
+
+.site-nav__link {
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius);
+    transition: background-color 0.2s ease;
+}
+
+.site-nav__link:hover,
+.site-nav__link:focus-visible {
+    background-color: rgba(10, 132, 255, 0.1); /* Светло-голубой фон при наведении/фокусе */
+}
+
+/* Активный пункт меню (на текущей странице) */
+.site-nav__link.is-active {
+    background-color: var(--color-primary);
+    color: white;
+    font-weight: bold;
+}
+
+/* === 4. СТИЛИ ДЛЯ "ХЛЕБНЫХ КРОШЕК" (БЭМ) === */
+.breadcrumbs {
+    padding-block: var(--space-2) var(--space-4); /* Отступы сверху и снизу */
+    font-size: 0.9rem; /* Немного уменьшаем размер шрифта */
+    color: var(--color-muted); /* Серый цвет текста */
+}
+
+.breadcrumbs__list {
+    list-style: none; /* Убираем стандартные маркеры списка */
+    display: flex; /* Располагаем элементы горизонтально */
+    gap: var(--space-1); /* Маленький отступ между элементами */
+    align-items: center; /* Выравниваем по вертикали */
+    margin: 0; /* Сбрасываем стандартные отступы */
+    padding: 0; /* Сбрасываем стандартные отступы */
+}
+
+.breadcrumbs__link {
+    color: var(--color-primary); /* Синий цвет для ссылок */
+    text-decoration: none; /* Убираем подчеркивание по умолчанию */
+}
+
+/* Состояния для ссылок в "хлебных крошках" */
+.breadcrumbs__link:hover,
+.breadcrumbs__link:focus-visible {
+    text-decoration: underline; /* Подчеркиваем при наведении и фокусе */
+    outline: none; /* Убираем стандартный контур, так как есть подчеркивание */
+}
+
+/* Текущая страница */
+.breadcrumbs__current {
+    font-weight: 500; /* Делаем текст немного жирнее */
+}
+
+/* === 5. СТИЛИ ДЛЯ СЕКЦИЙ === */
+.section {
+    margin-block: var(--space-5);
+}
+
+.section h2 {
+    margin-bottom: var(--space-4);
+    color: var(--color-fg);
+}
+
+.section p {
+    margin-bottom: var(--space-3);
+    line-height: 1.6;
+}
+
+/* === 6. СТИЛИ ДЛЯ ИЗОБРАЖЕНИЙ === */
+
+
+/* Герой-секция с фоном */
+.hero {
+    background:
+        linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,.15)), /* оверлей для контраста текста */
+        url("assets/hero.jpg") center/cover no-repeat; /* картинка как декор */
+    color: #fff;
+    padding: clamp(2rem, 6vw, 6rem) 1rem; /* адаптивные отступы */
+    border-radius: var(--radius);
+    margin-block: var(--space-5);
+}
+
+/* === 7. КОНТЕЙНЕР ДЛЯ ВИДЕО === */
+.media {
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    max-width: 960px;
+    margin-inline: auto;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.media iframe,
+.media video {
+    width: 100%;
+    height: 100%; /* медиа занимает всю площадь контейнера */
+    border: 0;
+    border-radius: var(--radius);
+}
+
+/* === 8. СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА И ФОРМЫ === */
+.modal {
+    padding: 0;
+    border: none;
+    border-radius: var(--radius);
+}
+
+.modal::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.modal__content {
+    padding: var(--space-4);
+    background: var(--color-bg);
+    border-radius: var(--radius);
+}
+
+.modal__title {
+    margin: 0 0 var(--space-4);
+    font-size: 1.5rem;
+}
+
+.form__group {
+    margin-bottom: var(--space-4);
+}
+
+.form__label {
+    display: block;
+    margin-bottom: var(--space-2);
+    font-weight: 500;
+}
+
+.form__control {
+    width: 100%;
+    max-width: 480px;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-muted);
+    border-radius: var(--radius);
+    background: white;
+    transition: border-color 0.2s ease;
+}
+
+.form__control:focus-visible {
+    border-color: var(--color-primary);
+}
+
+.form__control[aria-invalid="true"] {
+    border-color: var(--color-danger);
+}
+
+.form__actions {
+    display: flex;
+    gap: var(--space-3);
+    justify-content: flex-end;
+    margin-top: var(--space-4);
+}
+
+.button {
+    padding: var(--space-2) var(--space-4);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 500;
+    transition: filter 0.2s ease;
+}
+
+.button--primary {
+    background: var(--color-primary);
+    color: white;
+}
+
+.button--secondary {
+    background: var(--color-muted);
+    color: white;
+}
+
+.button:hover,
+.button:focus-visible {
+    filter: brightness(0.9);
+}
+
+/* === 9. СТИЛИ ДЛЯ ФОРМ === */
+form {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+form div {
+    margin-bottom: var(--space-4);
+}
+
+form label {
+    display: block;
+    margin-bottom: var(--space-2);
+    font-weight: 500;
+    color: var(--color-fg);
+}
+
+form input,
+form textarea {
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-muted);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+}
+
+form input:focus,
+form textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+form button[type="submit"] {
+    background: var(--color-primary);
+    color: white;
+    padding: var(--space-3) var(--space-5);
+    border: none;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: filter 0.2s ease;
+}
+
+form button[type="submit"]:hover {
+    filter: brightness(0.9);
+}
+
+/* === 10. АДАПТИВНОСТЬ === */
+@media (max-width: 768px) {
+    .site-header {
+        padding-block: var(--space-2);
+    }
+    
+    .site-header .container {
+        flex-direction: column;
+        gap: var(--space-3);
+    }
+    
+    .site-nav__list {
+        flex-direction: column;
+        gap: var(--space-2);
+    }
+    
+    .breadcrumbs__list {
+        flex-wrap: wrap;
+    }
+    
+    
+    .section {
+        margin-block: var(--space-4);
+    }
 }
